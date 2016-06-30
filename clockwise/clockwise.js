@@ -1,11 +1,11 @@
 //helper functions
-function setLevelFromUrl() {
+var setLevelFromUrl = function() {
     var index = window.location.href.indexOf('?');
     if (index === -1) return;
     var level = parseInt(window.location.href.slice(index + 1));
     if (isNaN(level)) return;
     if (level < 1) return;
-    //if(level > 5) alert("What a rebel!");
+    if(level > 5) alert("What a rebel!");
     if (level > 9) level = 9;
 
     CONST.STEP_TIME = 1200 / level;
@@ -15,36 +15,18 @@ function setLevelFromUrl() {
     CONST.PADDING = CONST.RADIUS * 2;
 }
 
-function fillCircle(ctx, x, y, radius) {
-    if(radius < 5){ //shh, don't tell anybody
-        ctx.fillRect(x-radius,y-radius,2*radius,2*radius);
-        return;
-    }
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
-    ctx.fill();
-    ctx.closePath();
-}
-
-function createArray(length) {
+var createArray = function(length) {
     var arr = new Array(length || 0),
-            i = length;
+        i = length;
 
     if (arguments.length > 1) {
         var args = Array.prototype.slice.call(arguments, 1);
         while (i--)
             arr[length - 1 - i] = createArray.apply(this, args);
     }
-
     return arr;
 }
 
-function interpolatePositions(x1, y1, x2, y2, progress, log) {
-    return {
-        x: x1 * (1 - progress) + x2 * progress,
-        y: y1 * (1 - progress) + y2 * progress
-    };
-}
 //constants
 var transforms = {};
 var CONST = {
@@ -65,7 +47,7 @@ var delta = {
     d: {y: 1}
 };
 
-function createTransformedGrid(grid) {
+var createTransformedGrid = function(grid) {
     var res = JSON.parse(JSON.stringify(grid));
     for (var i = 0; i < res.length; i++) {        
         var d = delta[transforms[transformIndex][res[i].y][res[i].x]];
@@ -76,7 +58,7 @@ function createTransformedGrid(grid) {
     return res;
 }
 
-function createGrid() {
+var createGrid = function() {
     var res = [];
     for (var i = 0; i < CONST.SIZE; i++) {
         for (var j = 0; j < CONST.SIZE; j++) {
@@ -86,7 +68,7 @@ function createGrid() {
     return res;
 }
 
-function generateCircle(index, startX, startY, power) { //index = which transform to modify, size = 2^pow
+var generateCircle = function(index, startX, startY, power) { //index = which transform to modify, size = 2^pow
     var size = Math.pow(2, power);
     for (var y = 0; y < size / 2; y++) {
         for (var x = 0; x < size; x++) {
@@ -106,7 +88,7 @@ function generateCircle(index, startX, startY, power) { //index = which transfor
     }
 }
 
-function prepareTransforms() {
+var prepareTransforms = function() {
     transformCount = CONST.POWER;
 
     for (var i = 0; i < CONST.POWER; i++) {
@@ -119,38 +101,57 @@ function prepareTransforms() {
         }
     }
 }
-setLevelFromUrl();
-//variables
-var positions;
-var newPositions = createGrid();
-prepareTransforms();
-var finishTime = 0;
+
+
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext("2d");
 canvas.width = CONST.CANVAS_SIZE;
 canvas.height = CONST.CANVAS_SIZE;
-ctx.fillStyle = "white";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+var fillCircle = function(ctx, x, y, radius) {
+    if(radius < 5){ //shh, don't tell anybody
+        ctx.fillRect(x-radius,y-radius,2*radius,2*radius);
+        return;
+    }
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+    ctx.fill();
+    ctx.closePath();
+}
+
+var redraw = function(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var progress = 1 - (finishTime - Date.now()) * 1.0 / CONST.STEP_TIME;
+    for (var i = 0; i < positions.length; i++) {
+        var pos = {x:0, y:0};
+        for(a in pos){
+            pos[a] = positions[i][a] * (1 - progress) + newPositions[i][a] * progress;
+        }
+        var c = Math.round((i / positions.length) * 255);
+        ctx.fillStyle = "rgb(" + c + ",255," + (255 - c) + ")";
+        fillCircle(ctx, pos.x * CONST.PADDING + CONST.RADIUS,
+                pos.y * CONST.PADDING + CONST.RADIUS, CONST.RADIUS);
+    }
+}
+
+setLevelFromUrl();
+prepareTransforms();
+
+var positions,
+    newPositions = createGrid(),
+    finishTime = 0;
 
 var update = function() {
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (Date.now() >= finishTime) {
         positions = newPositions;
         newPositions = createTransformedGrid(positions);
         finishTime = Date.now() + CONST.STEP_TIME;
     }
-    var progress = 1 - (finishTime - Date.now()) * 1.0 / CONST.STEP_TIME;
     
-    for (var i = 0; i < positions.length; i++) {
-        var pos = interpolatePositions(positions[i].x, positions[i].y,
-                newPositions[i].x, newPositions[i].y, progress, i === 0);
-        var c = Math.round((i / positions.length) * 255);
-        ctx.fillStyle = "rgb(" + c + ",255," + (255 - c) + ")";
-
-        fillCircle(ctx, pos.x * CONST.PADDING + CONST.RADIUS,
-                pos.y * CONST.PADDING + CONST.RADIUS, CONST.RADIUS);
-    }
+    redraw();
     requestAnimationFrame(update);
 };
+
+
 update();
