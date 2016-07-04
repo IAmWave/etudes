@@ -1,41 +1,39 @@
-//statické metody
+"use strict";
+
+//static functions
 function degreesToRadians(angle) {
     return Math.PI / 180 * angle;
 }
 
-//konstanty
+//constants
 var CONST = {
     RIGHT_ANGLE: Math.PI / 2,
     GROWTH_COEF: 0.008,
-    GROWTH_COEF_DIVISION_BASE: 2, //pricte se k hloubce (root ma nejvyssi) a souctem se pak vydeli GROWTH_COEF
+    GROWTH_COEF_DIVISION_BASE: 2, //is added to the depth (the root having maximum depth) and then divides GROWTH_COEF
     MIN_BRANCHING_WIDTH: 10,
     ROOT_HEIGHT_COEF: 1,
     WIDTH_TO_HEIGHT_COEF: 1.7,
-    HEIGHT_CATCHUP_COEF: 0.01, //jak rychle se branche davaji do spravneho pomeru stran
-    HEIGHT_CATHCUP_FLAT: 0.01, //flat pridani v kazdem kroku
+    HEIGHT_CATCHUP_COEF: 0.01, //how fast branches grow to their desired "aspect ratio"
+    HEIGHT_CATHCUP_FLAT: 0.01, //added in each step
     BASE_WIDTH: 40,
-    MIN_ANGLE_DIFF: 50, //30, 60
+    MIN_ANGLE_DIFF: 50,
     MAX_ANGLE_DIFF: 90,
-    MIN_WIDTH_PART: 0.3, //pri vetveni bude kazda vetev zabirat aspon MIN_WIDTH_PART z puvodni sirky
+    MIN_WIDTH_PART: 0.3, //when branching, each branch will be at least (MIN_WIDTH_PART * original height) wide
     ROTATION_COEF: 0.0005,
     DEPTH_INFLUENCE_COEF: 0.05,
     MAX_DEPTH: 14,
     RESET_BUTTON_SIZE: 100,
-    DISPLAY_RESET_DEPTH: 9, //depth, pri kterem se zobrazi tlacitko reset
+    DISPLAY_RESET_DEPTH: 9, //the depth at which to show the reset button
 };
-//promìnné
 
 var canvas = document.getElementById('myCanvas');
 var ctx = canvas.getContext("2d");
-canvas.width = ctx.canvas.clientWidth;//CONST.WIDTH;
-canvas.height = ctx.canvas.clientHeight;//CONST.HEIGHT;
-var groundHeight = canvas.height * 1;
+canvas.width = ctx.canvas.clientWidth;
+canvas.height = ctx.canvas.clientHeight;
 var keepBranching = true;
 var maxDepth = 0;
-//random rozhoduje, zda pri prvnim vetveni bude vetsi cast nalevo, nebo napravo
 var root;
 var showButton = false;
-
 
 var resetButton = new Image();
 resetButton.ready = false;
@@ -45,9 +43,8 @@ resetButton.onload = function () {
 }
 
 window.addEventListener('resize', function (event) {
-    canvas.width = ctx.canvas.clientWidth;//CONST.WIDTH;
-    canvas.height = ctx.canvas.clientHeight;//CONST.HEIGHT;
-    groundHeight = canvas.height * 1;
+    canvas.width = ctx.canvas.clientWidth;
+    canvas.height = ctx.canvas.clientHeight;
 });
 function initRoot() {
     root = Branch(CONST.BASE_WIDTH, CONST.BASE_WIDTH * CONST.ROOT_HEIGHT_COEF, null, (Math.random() - 0.5) / 1000);
@@ -56,15 +53,9 @@ function initRoot() {
 }
 
 canvas.addEventListener('mousedown', function (event) {
-    if (!showButton) {
-        return;
-    }
-    var x = event.x;
-    var y = event.y;
-
-    x -= canvas.offsetLeft;
-    y -= canvas.offsetTop;
-    if (x < CONST.RESET_BUTTON_SIZE && y < CONST.RESET_BUTTON_SIZE) {
+    if (!showButton) return;
+    if (event.x - canvas.offsetLeft < CONST.RESET_BUTTON_SIZE &&
+        event.y - canvas.offsetTop < CONST.RESET_BUTTON_SIZE) {
         initRoot();
     }
 }, false);
@@ -76,7 +67,7 @@ var Branch = function (width, height, father, maxRelativeAngle) {
         depth: 0,
         angle: 0,
         relativeAngle: 0.01 * maxRelativeAngle,
-        //<editor-fold desc="gettery" defaultstate=collapsed>
+
         getWidth: function () {
             return width;
         },
@@ -116,7 +107,6 @@ var Branch = function (width, height, father, maxRelativeAngle) {
                 }
             }
         },
-        //</editor-fold>
 
         modifyAngle: function () {
             if (maxRelativeAngle === 0) {
@@ -124,7 +114,7 @@ var Branch = function (width, height, father, maxRelativeAngle) {
                 return;
             }
             var dist = (Math.abs(maxRelativeAngle) - Math.abs(this.relativeAngle)) / Math.abs(maxRelativeAngle);
-            //console.log(dist);
+
             this.relativeAngle *= 1 + dist * 0.01;
 
             if (this.relativeAngle < 0) {
@@ -146,7 +136,7 @@ var Branch = function (width, height, father, maxRelativeAngle) {
                 height *= 1 + (CONST.WIDTH_TO_HEIGHT_COEF - height / width) * CONST.HEIGHT_CATCHUP_COEF;
                 height += CONST.HEIGHT_CATHCUP_FLAT;
             }
-            //if(relativeAngle)
+
             var myCoef = CONST.GROWTH_COEF / (this.depth + CONST.GROWTH_COEF_DIVISION_BASE);
             myCoef /= 1 + (maxDepth * maxDepth) * CONST.DEPTH_INFLUENCE_COEF;
 
@@ -163,11 +153,6 @@ var Branch = function (width, height, father, maxRelativeAngle) {
                     var angleDiff = (Math.random() * (CONST.MAX_ANGLE_DIFF - CONST.MIN_ANGLE_DIFF) + CONST.MIN_ANGLE_DIFF);
                     var newAngle1 = angleDiff * (1 - leftWidth);
                     var newAngle2 = -angleDiff * (leftWidth);
-
-
-                    /*var temp = newAngle2;
-                     newAngle2 = newAngle1;
-                     newAngle1 = temp;*/
 
                     this.subbranches[0] = Branch(width * leftWidth, height * 0.2,
                             this, newAngle1);
@@ -188,7 +173,7 @@ var Branch = function (width, height, father, maxRelativeAngle) {
                 x: height * Math.sin(rads),
                 y: -height * Math.cos(rads)
             };
-            var hMove2 = {//antialiasing fix - vykresleni subbranchu probehne tak, jako by tento branch byl o pixel nizsi
+            var hMove2 = { //antialiasing fix - subbranches are drawn as if this branch was a pixel shorter
                 x: (height - 0.5) * Math.sin(rads),
                 y: -(height - 0.5) * Math.cos(rads)
             };
@@ -204,7 +189,6 @@ var Branch = function (width, height, father, maxRelativeAngle) {
                 x -= wMove.x;
                 y -= wMove.y;
             }
-            //console.log(x + " " + y);
 
             ctx.beginPath();
             ctx.moveTo(x, y);
@@ -240,7 +224,7 @@ var Branch = function (width, height, father, maxRelativeAngle) {
     };
 };
 
-var update = function (delta) { //vrací, zda se má loop zopakovat
+var update = function () {
     ctx.fillStyle = "lightblue";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     maxDepth = root.getDepth();
@@ -252,7 +236,7 @@ var update = function (delta) { //vrací, zda se má loop zopakovat
     root.getAngles(0);
 
     ctx.fillStyle = "black";
-    root.draw((canvas.width - root.getWidth()) / 2, groundHeight, 0);
+    root.draw((canvas.width - root.getWidth()) / 2, canvas.height, 0);
     if (maxDepth > CONST.DISPLAY_RESET_DEPTH) {
         showButton = true;
     }
@@ -261,17 +245,8 @@ var update = function (delta) { //vrací, zda se má loop zopakovat
         showButton = true;
         ctx.drawImage(resetButton, 0, 0, CONST.RESET_BUTTON_SIZE, CONST.RESET_BUTTON_SIZE);
     }
+    requestAnimationFrame(update);
 };
 
-
-var main = function () {
-    var curTime = Date.now();
-    var delta = curTime - lastTime;
-    update(delta);
-    lastTime = curTime;
-    requestAnimationFrame(main);
-};
-var lastTime = Date.now();
-var startTime = Date.now();
 initRoot();
-main();
+update();
