@@ -5,10 +5,9 @@ var setLevelFromUrl = function() {
     var level = parseInt(window.location.href.slice(index + 1));
     if (isNaN(level)) return;
     if (level < 1) return;
-    if(level > 5) alert("What a rebel!");
+    if(level > 5) alert("What a rebel!"); // :^)
     if (level > 9) level = 9;
 
-    CONST.STEP_TIME = 1200 / level;
     CONST.POWER = level;
     CONST.SIZE = Math.pow(2, level);
     CONST.RADIUS = CONST.CANVAS_SIZE / CONST.SIZE / 2;
@@ -34,7 +33,7 @@ var CONST = {
     POWER: 3,
     PADDING: 60,
     RADIUS: 30,
-    STEP_TIME: 400,
+    STEP_TIME: 900,
     CANVAS_SIZE: 480
 };
 var transformIndex = 0;
@@ -122,7 +121,7 @@ var fillCircle = function(ctx, x, y, radius) {
 
 var redraw = function(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    var progress = 1 - (finishTime - Date.now()) * 1.0 / CONST.STEP_TIME;
+    var progress = 1 - (finishTime - Date.now()) * 1.0 / (CONST.STEP_TIME / CONST.POWER);
     for (var i = 0; i < positions.length; i++) {
         var pos = {x:0, y:0};
         for(a in pos){
@@ -146,7 +145,7 @@ var update = function() {
     if (Date.now() >= finishTime) {
         positions = newPositions;
         newPositions = createTransformedGrid(positions);
-        finishTime = Date.now() + CONST.STEP_TIME;
+        finishTime = Date.now() + (CONST.STEP_TIME / CONST.POWER);
     }
     
     redraw();

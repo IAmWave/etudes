@@ -7,6 +7,9 @@ Fractal-ish circles spinning clockwise.
 ## [Beige](https://iamwave.github.io/js-visual/beige/) (Aug 2014)
 A tiny, calming, interactive piece based on a recurring dream of mine. Try dragging or holding the mouse.
 
+## [Grow](https://iamwave.github.io/js-visual/grow/) (Oct 2014)
+Watch a randomly generated tree grow in real-time.
+
 ## [195](https://iamwave.github.io/js-visual/195/) (Jan 2015)
 Fractal mapping based on [xkcd 195](http://xkcd.com/195/).
 
