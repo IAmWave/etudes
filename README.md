@@ -10,6 +10,9 @@ A tiny, calming, interactive piece based on a recurring dream of mine. Try dragg
 ## [Depth](https://iamwave.github.io/js-visual/depth/) (Oct 2014)
 A simple [Sierpinski triangle](https://en.wikipedia.org/wiki/Sierpinski_triangle) zoom. It spins, too!
 
+## [Pendulum](https://iamwave.github.io/js-visual/pendulum/) (Oct 2014)
+Simulates the famous pendulum wave effect.
+
 ## [Grow](https://iamwave.github.io/js-visual/grow/) (Oct 2014)
 Watch a randomly generated tree grow in real-time.
 
