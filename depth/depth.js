@@ -27,7 +27,7 @@ var size = CONST.HEIGHT;
 
 function drawFractal(x, y, a) {
     if (a < CONST.MIN_A_1) return;
-    if (y > Math.hypot(CONST.WIDTH, CONST.WIDTH)) return;
+    if (y > CONST.MAX_SIZE) return;
 
     if(a < CONST.MIN_A_2){
         var color = Math.round((a-CONST.MIN_A_1)/(CONST.MIN_A_2-CONST.MIN_A_1)*255);
