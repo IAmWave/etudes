@@ -1,3 +1,4 @@
 preview.sh
 updatePages.sh
 toAdd/
+*.sublime*
