@@ -28,7 +28,7 @@ var startTime = Date.now();
 var update = function (delta) {
     var time = (Date.now() - startTime) % CONST.PERIOD;
     ctx.fillStyle = "black";
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "white";
     for (var i = 0; i < CONST.PENDULUMS; i++) {
