@@ -24,3 +24,6 @@ Wolfram's cellular automata on a torus, with pretty colors. [Further instruction
 
 ## [Web](https://iamwave.github.io/js-visual/web/) (Dec 2016)
 A minimalist web-like tessalation.
+
+## [The Wall](https://iamwave.github.io/js-visual/wall) (Feb 2017)
+![Wall preview](wall/preview_wall.png)
